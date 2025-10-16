@@ -1,23 +1,36 @@
 import TaskItem from "./TaskItem";
 
-export default function TaskList({ tasks, searchtask, updateTask, deleteTask }) {
+export default function TaskList({
+  tasks,
+  searchtask,
+  updateTask,
+  deleteTask,
+  setModal,
+  setIsEditing,
+  setCurrentTask,
+}) {
+  // Filter tasks based on the search query
+  const filteredTasks = tasks.filter((task) =>
+    task.title.toLowerCase().includes(searchtask.toLowerCase())
+  );
+
   return (
     <ul className="task-list">
-      {tasks.length === 0 ? (
+      {filteredTasks.length === 0 ? (
         <li className="muted">No tasks yet.</li>
       ) : (
-        tasks
-          .filter((task) =>
-            task.title.toLowerCase().includes(searchtask.toLowerCase())
-          )
-          .map((task) => (
-            <TaskItem
-              key={task.id}
-              task={task}
-              updateTask={updateTask}
-              deleteTask={deleteTask}
-            />
-          ))
+        filteredTasks.map((task) => (
+          <TaskItem
+            key={task.id}
+            task={task}
+            deleteTask={deleteTask}
+            onEdit={() => {
+              setCurrentTask(task); // Set selected task for editing
+              setIsEditing(true);   // Enable edit mode
+              setModal(true);       // Open modal form
+            }}
+          />
+        ))
       )}
     </ul>
   );

@@ -2,55 +2,33 @@ import { useState } from "react";
 import TaskList from "./components/TaskList";
 import TaskForm from "./components/TaskForm";
 import DeleteModal from "./components/DeleteModal";
+import { Plus } from "lucide-react";
+import Navbar from "./components/Navbar";
+
 import "./App.css";
 
 export default function App() {
   const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState({title: "",description: "",duedate: "",duetime: "",
-  });
   const [modal, setModal] = useState(false);
-  const [editingTaskId, setEditingTaskId] = useState(null);
-  const [searchtask, setSearchTask] = useState("");
+  const [searchTask, setSearchTask] = useState(""); // renamed for consistency
   const [deleteModal, setDeleteModal] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentTask, setCurrentTask] = useState(null);
 
-  function handleChange(event) {
-    const { name, value } = event.target;
-    setNewTask({ ...newTask, [name]: value });
-  }
-
-  function saveTask() {
-    if (editingTaskId) {
-      setTasks(
-        tasks.map((task) =>
-          task.id === editingTaskId ? { ...task, ...newTask } : task
-        )
-      );
-      setEditingTaskId(null);
-    } else {
-      setTasks([...tasks, { id: Date.now(), ...newTask }]);
-    }
-    setNewTask({ title: "", description: "", duedate: "", duetime: "" });
-    setModal(false);
-  }
-
-  function updateTask(id) {
-    const taskToEdit = tasks.find((task) => task.id === id);
-    if (taskToEdit) {
-      setNewTask({
-        title: taskToEdit.title,
-        description: taskToEdit.description,
-        duedate: taskToEdit.duedate,
-        duetime: taskToEdit.duetime,
-      });
-      setEditingTaskId(id);
-      setModal(true);
-    }
+  function addTask(newTask) {
+    setTasks([...tasks, { id: Date.now(), ...newTask }]);
   }
 
   function handleDeleteClick(id) {
     setTaskToDelete(id);
     setDeleteModal(true);
+  }
+
+  function updateTask(updatedTask) {
+    setTasks(tasks.map(task =>
+      task.id === updatedTask.id ? updatedTask : task
+    ));
   }
 
   function confirmDelete() {
@@ -60,45 +38,45 @@ export default function App() {
   }
 
   return (
-    <div className="card">
-      <h3 className="todo">TODO LIST</h3>
-      <button className="fabbtn" onClick={() => setModal(true)}>
-        Add
-      </button>
-
-      {tasks.length > 5 && (
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search tasks by title..."
-          value={searchtask}
-          onChange={(e) => setSearchTask(e.target.value)}
-        />
-      )}
-
-      <TaskList
+    <>
+      <Navbar
         tasks={tasks}
-        searchtask={searchtask}
-        updateTask={updateTask}
-        deleteTask={handleDeleteClick}
+        searchTask={searchTask}
+        setSearchTask={setSearchTask}
       />
 
-      <TaskForm
-        modal={modal}
-        setModal={setModal}
-        newTask={newTask}
-        handleChange={handleChange}
-        saveTask={saveTask}
-        editingTaskId={editingTaskId}
-        setEditingTaskId={setEditingTaskId}
-         setNewTask={setNewTask}
-      />
+      <div className="card">
+        <button className="fabbtn" onClick={() => setModal(true)}>
+          <Plus size={28} />
+        </button>
 
-      <DeleteModal
-        isOpen={deleteModal}
-        onClose={() => setDeleteModal(false)}
-        onConfirm={confirmDelete}
-      />
-    </div>
+        <TaskList
+          tasks={tasks}
+          searchtask={searchTask} // pass filtered tasks to TaskList
+          deleteTask={handleDeleteClick}
+          updateTask={updateTask}
+          setModal={setModal}
+          setIsEditing={setIsEditing}
+          setCurrentTask={setCurrentTask}
+        />
+
+        <TaskForm
+          modal={modal}
+          setModal={setModal}
+          addTask={addTask}
+          updateTask={updateTask}
+          isEditing={isEditing}
+          currentTask={currentTask}
+          setIsEditing={setIsEditing}
+          setCurrentTask={setCurrentTask}
+        />
+
+        <DeleteModal
+          isOpen={deleteModal}
+          onClose={() => setDeleteModal(false)}
+          onConfirm={confirmDelete}
+        />
+      </div>
+    </>
   );
 }

@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 export default function DeleteModal({ isOpen, onClose, onConfirm }) {
   if (!isOpen) return null;
 
@@ -6,11 +7,11 @@ export default function DeleteModal({ isOpen, onClose, onConfirm }) {
       <div className="modal">
         <h3>Are you sure you want to delete this task?</h3>
         <div className="actions">
-          <button className="btn danger" onClick={onConfirm}>
+          <button className="btnnn" onClick={onConfirm}>
             Delete
           </button>
-          <button className="btn" onClick={onClose}>
-            Cancel
+          <button className="btn danger" onClick={onClose}>
+            <X size={20}/>
           </button>
         </div>
       </div>
